@@ -1,0 +1,7 @@
+node_modules/
+dist/
+out/
+.electron-cache/
+*.log
+.DS_Store
+settings.local.json

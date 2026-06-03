@@ -1,0 +1,23 @@
+{
+  "name": "interview-copilot",
+  "version": "1.0.0",
+  "description": "基于 Deepgram + Gemini 的面试实时答题助手（双声道识别 + RAG + 自动生成答案）",
+  "main": "src/main/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "ELECTRON_RUN_AS_NODE= electron .",
+    "dev": "ELECTRON_RUN_AS_NODE= electron . --enable-logging",
+    "package": "electron-packager . \"Interview Copilot\" --platform=darwin --arch=x64 --app-bundle-id=com.interview.copilot --out=dist --overwrite --app-version=1.0.0 --extend-info=extend-info.plist --prune=true",
+    "sign": "codesign --force --deep --sign - \"dist/Interview Copilot-darwin-x64/Interview Copilot.app\""
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/packager": "^20.0.0",
+    "electron": "^33.2.0"
+  },
+  "dependencies": {
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1"
+  }
+}
