@@ -1,20 +1,93 @@
 {
   "name": "interview-copilot",
   "version": "1.0.0",
-  "description": "基于 Deepgram + Gemini 的面试实时答题助手（双声道识别 + RAG + 自动生成答案）",
+  "description": "Real-time interview assistant: dual-channel transcription (Deepgram) + LLM answers (DeepSeek/Gemini/OpenAI/Ollama), grounded in your own documents.",
   "main": "src/main/main.js",
   "type": "commonjs",
+  "author": "ericwang915",
+  "license": "MIT",
+  "homepage": "https://github.com/ericwang915/interview-copilot#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ericwang915/interview-copilot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ericwang915/interview-copilot/issues"
+  },
+  "keywords": [
+    "electron",
+    "interview",
+    "deepgram",
+    "deepseek",
+    "gemini",
+    "openai",
+    "ollama",
+    "speech-to-text",
+    "llm",
+    "transcription"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "ELECTRON_RUN_AS_NODE= electron .",
     "dev": "ELECTRON_RUN_AS_NODE= electron . --enable-logging",
+    "test": "node --test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "package": "electron-packager . \"Interview Copilot\" --platform=darwin --arch=x64 --app-bundle-id=com.interview.copilot --out=dist --overwrite --app-version=1.0.0 --extend-info=extend-info.plist --prune=true",
-    "sign": "codesign --force --deep --sign - \"dist/Interview Copilot-darwin-x64/Interview Copilot.app\""
+    "sign": "codesign --force --deep --sign - \"dist/Interview Copilot-darwin-x64/Interview Copilot.app\"",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
   },
-  "author": "",
-  "license": "MIT",
+  "build": {
+    "appId": "com.interview.copilot",
+    "productName": "Interview Copilot",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Interview Copilot transcribes your microphone (the candidate) in real time.",
+        "NSScreenCaptureUsageDescription": "Interview Copilot captures system audio (the interviewer) via screen-capture loopback."
+      }
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility"
+    }
+  },
   "devDependencies": {
     "@electron/packager": "^20.0.0",
-    "electron": "^33.2.0"
+    "electron": "^33.2.0",
+    "electron-builder": "^26.15.2",
+    "eslint": "^10.4.1",
+    "prettier": "^3.8.3"
   },
   "dependencies": {
     "mammoth": "^1.8.0",

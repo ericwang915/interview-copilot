@@ -1,0 +1,22 @@
+# Changelog
+
+All notable changes to this project are documented here. Format loosely follows
+[Keep a Changelog](https://keepachangelog.com/).
+
+## [Unreleased]
+
+### Added
+- Open-source hardening: LICENSE (MIT), bilingual README with disclaimer & privacy notes, CONTRIBUTING, SECURITY, issue/PR templates.
+- Multi-provider answer generation: **OpenAI** and **Ollama** (local) in addition to DeepSeek and Gemini, via a shared OpenAI-compatible client and a provider registry (`config.js`).
+- Unit tests (`node:test`) for prompt building, provider fallback/retry, document chunking, knowledge store, and SSE parsing.
+- ESLint (flat config) + Prettier.
+- `electron-builder` packaging (dmg / nsis / AppImage, x64 + arm64) and GitHub Actions (CI + release).
+- Content-Security-Policy in the renderer.
+- `.nvmrc`, `engines`, `.env.example`.
+
+### Changed
+- Answers are now grounded in the last ~15 turns of dialogue, while question detection uses only the latest turns.
+- Extracted prompt building into `prompt.js` and the OpenAI-compatible client into `openaiCompat.js` for testability and reuse.
+
+## [1.0.0]
+- Initial app: Deepgram dual-channel transcription, Ctrl+A question detection + answer generation, knowledge base, switchable DeepSeek/Gemini providers, outline-style answers, packaged macOS app.

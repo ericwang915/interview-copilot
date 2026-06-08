@@ -1,75 +1,135 @@
-# 面试实时答题助手（Interview Copilot）
+# Interview Copilot
 
-基于 **Deepgram**（实时语音转写）+ **Gemini**（答案生成）的桌面应用：自动识别面试过程的双向对话，按一个热键即可基于你上传的资料 + 大模型知识，生成 **500 字以内** 的第一人称回答。整个应用就是一个界面。
+> Real-time interview assistant — live dual-channel transcription (Deepgram) + LLM answers (DeepSeek / Gemini / OpenAI / Ollama), grounded in your own documents.
 
-## 功能
+A single-window Electron desktop app. It listens to a conversation, separates **you (microphone)** from the **interviewer (system audio)**, and on a hotkey detects the interviewer's current question and drafts a concise, first-person answer — using the last ~15 turns of dialogue plus any documents you upload as context.
 
-- 🎙️ **双声道识别**：麦克风 = 面试者，系统声音（Loopback）= 面试官，分别实时转写并标注。
-- 📚 **资料知识库（RAG）**：上传简历 / JD / 笔记（txt / md / pdf / docx），整篇注入上下文，回答时优先参考。
-- ⌨️ **一键作答**：按 `Ctrl+A`（可在设置中修改）自动抓取最近的面试官问题 → Gemini 流式生成答案。
-- ✍️ **第一人称、≤500 字**：像在面试现场口头作答，简洁专业，字数可调。
-- 🖥️ **单界面**：左侧实时转写，右侧问题 / 答案 / 资料。
+> 中文说明见下方 [中文](#中文)。
 
-## 技术要点
+---
 
-- **Deepgram**：浏览器原生 WebSocket（子协议 `['token', apiKey]` 鉴权，`nova-2` / `nova-3`），无需 SDK。
-- **Gemini**：REST `streamGenerateContent`（SSE 流式），模型 ID 可在设置中自由填写（默认 `gemini-2.5-flash`）。
-- **音频**：`AudioWorklet` 把麦克风 / 系统声音转成 16kHz 16-bit PCM 推流。
-- **Electron**：主进程负责窗口、全局热键、设置持久化、资料解析与 Gemini 调用；渲染进程负责采集、转写与 UI。
+## ⚠️ Disclaimer — read this first
 
-## 安装与运行
+This tool is built for **interview preparation, practice, self-review, mock interviews, and accessibility assistance**.
+
+Using real-time answer generation during a **live** interview without the other party's knowledge may violate the policies of the company you're interviewing with, employment agreements, academic-integrity rules, or local law, and many people consider it dishonest. **You are solely responsible for how you use this software and for complying with all applicable rules and laws.** The authors provide it "as is" with no warranty (see [LICENSE](LICENSE)) and do not endorse deceptive use.
+
+## 🔐 Privacy — what leaves your machine
+
+This app sends data to third-party APIs **only for the providers you configure**:
+
+- **Audio** (microphone + captured system audio) is streamed to **Deepgram** for transcription.
+- **Transcripts, your question, and uploaded document text** are sent to your chosen **answer provider** (DeepSeek / Gemini / OpenAI) to generate answers.
+- API keys are stored **locally only**, in `app.getPath('userData')/settings.json` (e.g. `~/Library/Application Support/interview-copilot/settings.json` on macOS). They are never committed to the repo or sent anywhere except the provider's own API.
+
+Want **zero cloud**? Use **Ollama** as the answer provider (runs locally). A fully local STT option (Whisper) is on the [roadmap](#roadmap).
+
+---
+
+## Features
+
+- 🎙️ **Dual-channel transcription** — mic = candidate, system loopback = interviewer, transcribed separately and color-coded.
+- ⌨️ **One-key answering** — press `Ctrl+A` (configurable): detects the interviewer's *current* question from the latest turns and streams an answer.
+- 🧠 **Context-aware** — answers are grounded in the last ~15 turns of dialogue + your uploaded résumé / JD / notes (Knowledge Base).
+- 🔌 **Switchable providers** — DeepSeek, Gemini, OpenAI, or local Ollama, with automatic retry + model fallback.
+- ✍️ **Concise, outline-style** answers (default ≤ 500 chars), shown alongside the detected question so you can edit and regenerate.
+- 🖥️ **Single, clean UI** — live transcript on the left; question / answer / knowledge base on the right.
+
+## Requirements
+
+- **macOS 13+** (Ventura or later) — current target. Windows/Linux: see [Platform support](#platform-support).
+- **Node.js ≥ 18** (Node 20 LTS recommended; see `.nvmrc`).
+- API keys: [Deepgram](https://console.deepgram.com/) (STT, required) and at least one answer provider — [DeepSeek](https://platform.deepseek.com/) / [Gemini](https://aistudio.google.com/apikey) / [OpenAI](https://platform.openai.com/api-keys), or a local [Ollama](https://ollama.com/) install.
+
+## Quick start (dev)
 
 ```bash
-npm install        # 安装依赖（含 Electron）
-npm start          # 启动应用
+git clone https://github.com/ericwang915/interview-copilot
+cd interview-copilot
+npm install
+npm start
 ```
 
-> 若 `npm install` 在下载 Electron 二进制时报缓存目录权限错误（`EACCES … Library/Caches/electron`），用可写缓存目录重试：
-> ```bash
-> npm install --ignore-scripts
-> electron_config_cache="$PWD/.electron-cache" node node_modules/electron/install.js
-> ```
+On first launch, open **Settings** (gear icon) and enter your Deepgram key + one answer provider's key. Then:
 
-## 首次使用
+1. **Upload** a résumé / job description / notes (optional but recommended) into the Knowledge Base.
+2. Click **Start Listening** and grant microphone (and, for interviewer audio, Screen Recording) permission.
+3. When the interviewer asks something, press **`Ctrl+A`** (or click **Generate Answer**).
 
-1. 启动后会自动弹出「设置」，填入：
-   - **Deepgram API Key** —— https://console.deepgram.com/
-   - **Gemini API Key** —— https://aistudio.google.com/apikey
-   - 可选：生成模型 ID、转写语言、回答语言、字数上限、触发热键。
-2. 点击 **上传文件** 或 **粘贴文本**，把简历 / 岗位 JD / 知识点加入知识库。
-3. 点击 **▶ 开始监听**，授权麦克风与屏幕录制权限。
-4. 面试官提问后，按 **`Ctrl+A`**（或点「✨ 生成回答」），右侧即流式给出答案。
+## Build a standalone app
 
-## macOS 权限
+```bash
+# Quick local .app (Electron Packager) — macOS
+npm run package && npm run sign
 
-- **麦克风**：首次开始监听时系统会请求授权。
-- **系统声音（面试官）**：通过屏幕录制接口的 Loopback 采集（macOS 13+）。需在
-  `系统设置 → 隐私与安全性 → 屏幕录制` 中勾选本应用，然后重新「开始监听」。
-- **备选**：若不想用 Loopback，可安装虚拟声卡（如 [BlackHole](https://github.com/ExistentialAudio/BlackHole)），
-  把会议软件输出路由到它，再在「面试官音源」下拉里选择该输入设备。
+# Installers (electron-builder): dmg / nsis / AppImage
+npm run dist          # current platform
+npm run dist:mac      # mac (x64 + arm64)
+```
 
-## 项目结构
+The built app lives in `dist/`. For everyday use, launch the **packaged app** (double-click), not `npm start` from a terminal — on macOS the Screen-Recording permission attaches to the launching process, so a terminal-launched dev build can't reliably capture system audio.
+
+## Platform support
+
+| Platform | Mic (candidate) | System audio (interviewer) |
+|---|---|---|
+| macOS 13+ | ✅ | ✅ via Screen-Capture loopback (grant Screen Recording) |
+| Windows | ✅ | ⚠️ untested — `getDisplayMedia` system audio differs; PRs welcome |
+| Linux | ✅ | ⚠️ untested; PRs welcome |
+
+**No-permission alternative (any OS):** install a virtual audio device ([BlackHole](https://github.com/ExistentialAudio/BlackHole) on macOS, [VB-Cable](https://vb-audio.com/Cable/) on Windows), route the meeting app's output to it, and pick it under **Interviewer audio**.
+
+## Architecture
 
 ```
 src/
-  main/
-    main.js        Electron 主进程：窗口 / 全局热键 / IPC / 生成调度
-    preload.js     contextBridge 暴露安全 API
-    settings.js    设置读写（userData/settings.json）
-    store.js       资料知识库（拼接进上下文）
-    documents.js   文档解析（txt/md/pdf/docx）
-    gemini.js      Gemini REST 流式生成
-  renderer/
-    index.html     单界面布局
-    styles.css     深色主题
-    app.js         采集 / 转写路由 / 问题捕捉 / 生成 / 设置 / 资料
-    deepgram.js    Deepgram 实时转写客户端
-    pcm-worklet.js Float32 → 16-bit PCM AudioWorklet
+  main/                 Electron main process (Node)
+    main.js             window, global hotkey, IPC, generation orchestration
+    preload.js          contextBridge — safe renderer API
+    settings.js         persisted settings (userData/settings.json)
+    config.js           provider registry (models, base URLs, fallbacks)
+    prompt.js           prompt builders (answer + question extraction) — pure, tested
+    llm.js              provider-agnostic retry + fallback
+    gemini.js           Gemini REST (SSE)
+    openaiCompat.js     OpenAI-compatible client (DeepSeek / OpenAI / Ollama)
+    store.js            knowledge base (context stuffing)
+    documents.js        txt/md/pdf/docx parsing + chunking
+  renderer/             UI (no Node access)
+    index.html / styles.css / app.js
+    deepgram.js         Deepgram live WebSocket client
+    pcm-worklet.js      Float32 → 16-bit PCM AudioWorklet
+test/                   node:test unit tests
 ```
 
-## 说明
+Key design notes:
+- **Deepgram** runs in the renderer via a browser WebSocket using subprotocol token auth (`['token', key]`) — no SDK/bundler. See [SECURITY.md](SECURITY.md) for the trade-off.
+- **Answer providers** run in the main process via REST/SSE — no third-party AI SDKs.
+- Question detection uses only the latest turns; the answer is grounded in the broader recent history.
 
-- API Key 保存在本机 `app.getPath('userData')/settings.json`，不上传任何服务器。
-- `Ctrl+A` 注册为全局热键，应用运行时会拦截系统的全选快捷键；如有冲突可在设置中改成
-  `Control+Shift+A`、`Command+Enter` 等。
-- 本工具用于面试**练习 / 辅助**，请遵守目标公司及当地的相关规定。
+## Roadmap
+
+- [ ] Local STT (Whisper) for a fully offline pipeline
+- [ ] Windows/Linux system-audio capture
+- [ ] Optional vector RAG for large knowledge bases
+- [ ] Auto-trigger on detected question end
+- [ ] Answer history & export, i18n UI, custom icon
+
+## Contributing
+
+PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE)
+
+---
+
+## 中文
+
+基于 **Deepgram**（实时转写）+ **DeepSeek / Gemini / OpenAI / Ollama**（答案生成）的桌面应用：双声道识别（麦克风=面试者、系统声音=面试官），按 `Ctrl+A` 自动识别面试官当前的问题，并结合最近约 15 轮对话 + 你上传的资料，生成简洁的第一人称大纲式答案（默认 ≤500 字）。
+
+**⚠️ 免责声明**：本工具用于**面试练习、复盘、模拟面试与无障碍辅助**。在**真实面试**中未经对方知情使用实时答题，可能违反对方公司政策、协议、学术诚信规则或当地法律，且通常被视为不诚信行为。**如何使用、是否合规由你自行负责**，作者不为此背书，软件按「现状」提供、不附带任何担保。
+
+**🔐 隐私**：音频会发送到 Deepgram 转写；转写文本、问题与资料会发送到你选择的答案 Provider；API Key 仅保存在本机 `userData/settings.json`，不入库、不上传。想完全本地：把 Provider 选成 **Ollama**。
+
+运行：`npm install && npm start`，首次在「设置」里填 Deepgram Key + 任一答案 Provider Key。打包：`npm run dist`。日常使用请用打包后的 App（双击），不要从终端 `npm start`（否则 macOS 屏幕录制权限会算到终端头上）。

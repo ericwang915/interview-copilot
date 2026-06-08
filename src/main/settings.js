@@ -6,11 +6,15 @@ const { app } = require('electron');
 
 const DEFAULTS = {
   deepgramApiKey: process.env.DEEPGRAM_API_KEY || '',
-  // 答案 Provider： gemini / deepseek
+  // 答案 Provider： deepseek / gemini / openai / ollama
   provider: 'gemini',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   deepseekApiKey: process.env.DEEPSEEK_API_KEY || '',
-  deepseekModel: 'deepseek-v4-pro',
+  deepseekModel: 'deepseek-chat',
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+  openaiModel: 'gpt-4o-mini',
+  ollamaBaseURL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1/chat/completions',
+  ollamaModel: 'llama3.1',
   // 转写语言： zh / en-US / multi
   sttLanguage: 'en-US',
   // 生成模型（可编辑，填你账号能用的任意 Flash 模型 ID）

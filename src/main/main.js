@@ -18,29 +18,25 @@ const store = require('./store');
 const docs = require('./documents');
 const llm = require('./llm');
 const gemini = require('./gemini');
-const deepseek = require('./deepseek');
+const openaiCompat = require('./openaiCompat');
+const prompt = require('./prompt');
+const { PROVIDERS } = require('./config');
 
-// 按当前 Provider 选择流式实现 / Key / 模型链
+// 按当前 Provider（config.js 注册表）解析出：流式实现 / Key / baseURL / 模型链
 function resolveProvider(s) {
-  if ((s.provider || 'gemini') === 'deepseek') {
-    const primary = s.deepseekModel || 'deepseek-v4-pro';
-    const fallbacks = ['deepseek-v4-flash', 'deepseek-chat'];
-    return {
-      name: 'deepseek',
-      streamFn: deepseek.generateAnswerStream,
-      apiKey: s.deepseekApiKey,
-      keyLabel: 'DeepSeek',
-      models: [primary, ...fallbacks].filter((m, i, a) => a.indexOf(m) === i),
-    };
-  }
-  const primary = s.genModel || 'gemini-2.5-flash';
-  const fallbacks = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+  const id = s.provider && PROVIDERS[s.provider] ? s.provider : 'gemini';
+  const p = PROVIDERS[id];
+  const model = ((s[p.modelField] || '') + '').trim() || p.defaultModel;
+  const models = [model, ...(p.fallbacks || [])].filter((m, i, a) => a.indexOf(m) === i);
   return {
-    name: 'gemini',
-    streamFn: gemini.generateAnswerStream,
-    apiKey: s.geminiApiKey,
-    keyLabel: 'Gemini',
-    models: [primary, ...fallbacks].filter((m, i, a) => a.indexOf(m) === i),
+    id,
+    label: p.label,
+    type: p.type,
+    needsKey: !!p.keyField,
+    apiKey: p.keyField ? s[p.keyField] || '' : '',
+    baseURL: p.baseURLField ? s[p.baseURLField] || p.baseURL : p.baseURL,
+    models,
+    streamFn: p.type === 'gemini' ? gemini.generateAnswerStream : openaiCompat.generateAnswerStream,
   };
 }
 
@@ -50,49 +46,6 @@ app.setName('interview-copilot');
 let mainWindow = null;
 let currentSettings = settingsStore.load();
 let activeGen = null; // { id, controller }
-
-function buildPrompt({ question, transcript, context, answerLanguage, maxChars, profile }) {
-  const langRule =
-    answerLanguage === 'zh'
-      ? '请用中文作答。'
-      : answerLanguage === 'en'
-        ? 'Answer in English.'
-        : '使用与问题相同的语言作答。';
-
-  const lines = [
-    '你是正在参加面试的候选人本人。下面会给出面试现场的对话片段 / 问题，以及可能相关的个人资料/知识库内容。',
-    '请用第一人称、专业且自然的口吻，像在面试现场【口头作答】一样直接回答问题。',
-    '要求：',
-    `1) 严格控制在 ${maxChars} 字符以内（硬性上限），目标约 300 字、宁可更短。【大纲式，不要整段散文】：第一行一句话给结论/判断；随后 2-3 个以“- ”开头的精炼要点（关键词、工具、数字、取舍），能用词组就别用整句。`,
-    '2) 纯文本输出，禁止使用 Markdown 加粗/星号(**)、井号(#)、表格等标记（界面不渲染 Markdown，会显示成乱码）；删掉所有铺垫和客套；',
-    '3) 直接开口作答，不要复述问题、不要写“我的回答”之类的标题、不要出现“根据资料/上文”之类措辞；',
-    '4) 若资料中有相关信息务必优先采用并保持事实准确，资料无关则用你的专业知识作答；',
-    '5) 给到的对话是实时语音识别结果，可能有重复、串音、口误、错别字——请自行容错，判断面试官【当前最可能在问的核心问题】，只回答这个问题；',
-    `6) ${langRule}`,
-  ];
-  if (profile && profile.trim()) {
-    lines.push('', '================ 本次面试背景与作答风格（最高优先级，务必遵循） ================', profile.trim());
-  }
-  const systemInstruction = lines.join('\n');
-
-  const parts = [];
-  if (context) parts.push(`【可参考的个人资料 / 知识库】\n${context}\n`);
-
-  const q = (question || '').trim();
-  if (q) {
-    if (transcript) parts.push(`【最近约15轮面试对话历史（语音识别，可能有重复/错误，仅供你理解上下文、保持连贯）】\n${transcript}\n`);
-    parts.push(`【需要回答的问题】\n${q}`);
-    parts.push('请结合上面的对话上下文直接作答。');
-    parts.push('\n请直接给出你的回答：');
-  } else {
-    parts.push(`【最近约15轮面试对话历史（语音识别，可能有重复/串音/口误）】\n${transcript || '(暂无对话)'}\n`);
-    parts.push('请在心里判断面试官【最新/当前】正在问的核心问题，然后【直接作答】；较早的轮次只作为背景上下文，用来让回答更贴合、连贯，不要去回答更早的旧问题。');
-    parts.push('严禁任何前缀或复述，例如不得出现“The core question is…”“面试官在问…”“你的问题是…”，第一句话就是你的回答本身。');
-    parts.push('\n你的回答：');
-  }
-
-  return { systemInstruction, userText: parts.join('\n') };
-}
 
 function createWindow() {
   const smoke = !!process.env.INTERVIEW_SMOKE;
@@ -214,7 +167,11 @@ ipcMain.handle('add-text-document', (_e, { name, text }) => {
 // 取消正在进行的生成
 ipcMain.on('cancel-generate', () => {
   if (activeGen) {
-    try { activeGen.controller.abort(); } catch (_e) { /* ignore */ }
+    try {
+      activeGen.controller.abort();
+    } catch (_e) {
+      /* ignore */
+    }
     activeGen = null;
   }
 });
@@ -235,20 +192,24 @@ ipcMain.on('generate-answer', async (_e, { reqId, question, transcript }) => {
   }
 
   const prov = resolveProvider(currentSettings);
-  if (!prov.apiKey) {
-    send('answer-error', { message: `未配置 ${prov.keyLabel} API Key，请在「设置」中填写。` });
+  if (prov.needsKey && !prov.apiKey) {
+    send('answer-error', { message: `未配置 ${prov.label} API Key，请在「设置」中填写。` });
     return;
   }
 
   // 取消上一个
   if (activeGen) {
-    try { activeGen.controller.abort(); } catch (_e) { /* ignore */ }
+    try {
+      activeGen.controller.abort();
+    } catch (_e) {
+      /* ignore */
+    }
   }
   const controller = new AbortController();
   activeGen = { id: reqId, controller };
 
   const context = store.buildContext(currentSettings.maxContextChars || 60000);
-  const { systemInstruction, userText } = buildPrompt({
+  const { systemInstruction, userText } = prompt.buildPrompt({
     question: q,
     transcript: tr,
     context,
@@ -258,17 +219,26 @@ ipcMain.on('generate-answer', async (_e, { reqId, question, transcript }) => {
   });
 
   // 输出 token 上限。
-  // - DeepSeek v4 是“推理模型”：max_tokens 需同时覆盖隐藏的思考链，预算太小会导致答案为空，
-  //   因此放宽预算，答案长度交给提示词控制（思考链不显示给用户）。
+  // - OpenAI 兼容类（含 DeepSeek/Ollama）可能是“推理模型”：max_tokens 需同时覆盖隐藏思考链，
+  //   预算太小会导致答案为空，因此放宽，答案长度交给提示词控制（思考链不展示给用户）。
   // - Gemini 已关闭思考(thinkingBudget=0)，可按字数上限收紧做长度兜底。
   const maxChars = currentSettings.maxChars || 500;
   const lang = currentSettings.answerLanguage || 'auto';
   const perChar = lang === 'en' ? 0.5 : 1.1;
   const maxOutputTokens =
-    prov.name === 'deepseek'
+    prov.type === 'openai'
       ? 4096
       : Math.min(4096, Math.max(160, Math.ceil(maxChars * perChar * 1.15)));
-  const extractTokens = prov.name === 'deepseek' ? 1024 : 80;
+  const extractTokens = prov.type === 'openai' ? 1024 : 80;
+
+  const common = {
+    streamFn: prov.streamFn,
+    apiKey: prov.apiKey,
+    baseURL: prov.baseURL,
+    models: prov.models,
+    thinkingBudget: 0,
+    signal: controller.signal,
+  };
 
   // 提取模式（问题框留空）：并行跑一个轻量调用，把识别到的问题回填到「Current Question」框。
   // 问题只看最近几轮（末尾 6 行），与作答并行、不阻塞。
@@ -276,15 +246,10 @@ ipcMain.on('generate-answer', async (_e, { reqId, question, transcript }) => {
     const recentTr = tr.split('\n').slice(-6).join('\n');
     llm
       .generateWithFallback({
-        streamFn: prov.streamFn,
-        apiKey: prov.apiKey,
-        models: prov.models,
-        systemInstruction:
-          "You clean up noisy live interview transcripts. The transcript may contain repeats, cross-talk, ASR errors and half-sentences. Identify the interviewer's CURRENT core question and rewrite it as ONE clean, complete question. Output ONLY that question — no prefix, no quotes, no explanation. Write it in the SAME language the interviewer is speaking.",
-        userText: `Recent turns:\n${recentTr}\n\nThe interviewer's current core question is:`,
+        ...common,
+        systemInstruction: prompt.EXTRACTION_SYSTEM,
+        userText: prompt.buildExtractionUser(recentTr),
         maxOutputTokens: extractTokens,
-        thinkingBudget: 0,
-        signal: controller.signal,
         onChunk: () => {},
       })
       .then((r) => send('answer-question', { question: (r.text || '').trim() }))
@@ -293,14 +258,10 @@ ipcMain.on('generate-answer', async (_e, { reqId, question, transcript }) => {
 
   try {
     await llm.generateWithFallback({
-      streamFn: prov.streamFn,
-      apiKey: prov.apiKey,
-      models: prov.models,
+      ...common,
       systemInstruction,
       userText,
       maxOutputTokens,
-      thinkingBudget: 0,
-      signal: controller.signal,
       onStart: (model) => send('answer-start', { question: q, model, primary: prov.models[0] }),
       onChunk: (delta) => send('answer-chunk', { delta }),
     });
@@ -324,7 +285,9 @@ ipcMain.handle('get-screen-permission', () => {
 
 ipcMain.handle('open-screen-settings', () => {
   if (process.platform === 'darwin') {
-    shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
+    shell.openExternal(
+      'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
+    );
   }
   return true;
 });

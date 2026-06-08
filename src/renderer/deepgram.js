@@ -94,10 +94,18 @@ class DeepgramLive {
     clearInterval(this.keepAlive);
     this.keepAlive = null;
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      try { this.ws.send(JSON.stringify({ type: 'CloseStream' })); } catch (_e) { /* ignore */ }
+      try {
+        this.ws.send(JSON.stringify({ type: 'CloseStream' }));
+      } catch (_e) {
+        /* ignore */
+      }
     }
     if (this.ws) {
-      try { this.ws.close(); } catch (_e) { /* ignore */ }
+      try {
+        this.ws.close();
+      } catch (_e) {
+        /* ignore */
+      }
     }
     this.ws = null;
   }

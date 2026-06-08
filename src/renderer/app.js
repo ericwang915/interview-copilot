@@ -44,7 +44,8 @@ function charCount(s) {
 }
 
 // ---------------- 转写显示 ----------------
-const MIC_SVG = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>';
+const MIC_SVG =
+  '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>';
 
 function showEmptyState() {
   $('transcript').innerHTML =
@@ -78,7 +79,12 @@ function addDaySeparator() {
 }
 
 function isQuestion(text) {
-  return /[?？]/.test(text) || /^(what|why|how|when|where|who|which|can you|could you|tell me|walk me|describe|explain|do you|have you|would you)\b/i.test(text.trim());
+  return (
+    /[?？]/.test(text) ||
+    /^(what|why|how|when|where|who|which|can you|could you|tell me|walk me|describe|explain|do you|have you|would you)\b/i.test(
+      text.trim(),
+    )
+  );
 }
 
 function avatarEl(role) {
@@ -100,7 +106,7 @@ function metaEl(role, rightText) {
 function appendFinalLine(role, text) {
   clearEmptyState();
   const t = $('transcript');
-  const elapsed = formatElapsed((state.sessionStart ? Date.now() - state.sessionStart : 0));
+  const elapsed = formatElapsed(state.sessionStart ? Date.now() - state.sessionStart : 0);
 
   const msg = document.createElement('div');
   msg.className = `msg ${role === 'interviewee' ? 'you' : 'interviewer'}`;
@@ -117,7 +123,8 @@ function appendFinalLine(role, text) {
   if (role === 'interviewer' && isQuestion(text)) {
     const badge = document.createElement('div');
     badge.className = 'badge';
-    badge.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> Question detected';
+    badge.innerHTML =
+      '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg> Question detected';
     main.appendChild(badge);
   }
 
@@ -158,7 +165,10 @@ function clearInterim(role) {
 }
 
 function normalizeText(s) {
-  return (s || '').toLowerCase().replace(/[\s\p{P}]+/gu, ' ').trim();
+  return (s || '')
+    .toLowerCase()
+    .replace(/[\s\p{P}]+/gu, ' ')
+    .trim();
 }
 
 // 把已敲定的句子写入历史，并对双声道串音/ASR 重复做去重
@@ -191,7 +201,15 @@ function buildRecentDialogue(maxItems = 12) {
 
 // 把 "Control+A" 渲染成 ⌃Control / A 之类的按键 chip
 function renderHotkeyHint(hotkey) {
-  const sym = { control: '⌃ Control', command: '⌘', cmd: '⌘', commandorcontrol: '⌘/⌃', shift: '⇧ Shift', alt: '⌥ Option', option: '⌥ Option' };
+  const sym = {
+    control: '⌃ Control',
+    command: '⌘',
+    cmd: '⌘',
+    commandorcontrol: '⌘/⌃',
+    shift: '⇧ Shift',
+    alt: '⌥ Option',
+    option: '⌥ Option',
+  };
   const chips = (hotkey || 'Control+A')
     .split('+')
     .map((t) => `<kbd>${sym[t.toLowerCase()] || t}</kbd>`)
@@ -245,11 +263,13 @@ async function listInputDevices() {
 }
 
 async function getMicStream(deviceId) {
-  const audio = deviceId && deviceId !== 'default'
-    ? { deviceId: { exact: deviceId } }
-    : true;
+  const audio = deviceId && deviceId !== 'default' ? { deviceId: { exact: deviceId } } : true;
   return navigator.mediaDevices.getUserMedia({
-    audio: { ...(typeof audio === 'object' ? audio : {}), echoCancellation: false, noiseSuppression: true },
+    audio: {
+      ...(typeof audio === 'object' ? audio : {}),
+      echoCancellation: false,
+      noiseSuppression: true,
+    },
   });
 }
 
@@ -257,7 +277,10 @@ async function handleSystemCaptureError(e, sysVal) {
   if (sysVal === '__loopback__') {
     const status = await window.api.getScreenPermission();
     if (status !== 'granted') {
-      toast('System audio needs Screen Recording permission. Opening Settings — enable “Electron”, then restart the app.', true);
+      toast(
+        'System audio needs Screen Recording permission. Opening Settings — enable “Electron”, then restart the app.',
+        true,
+      );
       setStatus('Grant Screen Recording, then restart', 'error');
       window.api.openScreenSettings();
       return;
@@ -380,14 +403,26 @@ function onDgState(which, s, info) {
 
 async function stopListening() {
   state.listening = false;
-  try { if (state.dgMic) state.dgMic.close(); } catch (_e) {}
-  try { if (state.dgSys) state.dgSys.close(); } catch (_e) {}
+  try {
+    if (state.dgMic) state.dgMic.close();
+  } catch (_e) {}
+  try {
+    if (state.dgSys) state.dgSys.close();
+  } catch (_e) {}
   state.dgMic = null;
   state.dgSys = null;
 
-  state.nodes.forEach((n) => { try { n.disconnect(); } catch (_e) {} });
+  state.nodes.forEach((n) => {
+    try {
+      n.disconnect();
+    } catch (_e) {}
+  });
   state.nodes = [];
-  for (const c of state.contexts) { try { await c.close(); } catch (_e) {} }
+  for (const c of state.contexts) {
+    try {
+      await c.close();
+    } catch (_e) {}
+  }
   state.contexts = [];
   state.streams.forEach((s) => s.getTracks().forEach((t) => t.stop()));
   state.streams = [];
@@ -450,7 +485,8 @@ async function refreshDocs(list) {
   if (!docs || docs.length === 0) {
     const li = document.createElement('li');
     li.className = 'docs-empty';
-    li.textContent = 'No materials yet. Upload a résumé, job description, or notes — answers will reference these first.';
+    li.textContent =
+      'No materials yet. Upload a résumé, job description, or notes — answers will reference these first.';
     ul.appendChild(li);
     return;
   }
@@ -479,9 +515,13 @@ function openSettings() {
   $('setDeepgram').value = s.deepgramApiKey || '';
   $('setProvider').value = s.provider || 'gemini';
   $('setDeepseek').value = s.deepseekApiKey || '';
-  $('setDeepseekModel').value = s.deepseekModel || 'deepseek-v4-pro';
+  $('setDeepseekModel').value = s.deepseekModel || 'deepseek-chat';
   $('setGemini').value = s.geminiApiKey || '';
   $('setModel').value = s.genModel || 'gemini-2.5-flash';
+  $('setOpenai').value = s.openaiApiKey || '';
+  $('setOpenaiModel').value = s.openaiModel || 'gpt-4o-mini';
+  $('setOllamaURL').value = s.ollamaBaseURL || 'http://localhost:11434/v1/chat/completions';
+  $('setOllamaModel').value = s.ollamaModel || 'llama3.1';
   $('setSttLang').value = s.sttLanguage || 'en-US';
   $('setAnswerLang').value = s.answerLanguage || 'auto';
   $('setMaxChars').value = s.maxChars || 500;
@@ -495,9 +535,13 @@ async function saveSettings() {
     deepgramApiKey: $('setDeepgram').value.trim(),
     provider: $('setProvider').value,
     deepseekApiKey: $('setDeepseek').value.trim(),
-    deepseekModel: $('setDeepseekModel').value.trim() || 'deepseek-v4-pro',
+    deepseekModel: $('setDeepseekModel').value.trim() || 'deepseek-chat',
     geminiApiKey: $('setGemini').value.trim(),
     genModel: $('setModel').value.trim() || 'gemini-2.5-flash',
+    openaiApiKey: $('setOpenai').value.trim(),
+    openaiModel: $('setOpenaiModel').value.trim() || 'gpt-4o-mini',
+    ollamaBaseURL: $('setOllamaURL').value.trim() || 'http://localhost:11434/v1/chat/completions',
+    ollamaModel: $('setOllamaModel').value.trim() || 'llama3.1',
     sttLanguage: $('setSttLang').value,
     answerLanguage: $('setAnswerLang').value,
     maxChars: parseInt($('setMaxChars').value, 10) || 500,
@@ -520,7 +564,10 @@ function bindEvents() {
   $('saveSettings').onclick = saveSettings;
 
   $('generateBtn').onclick = triggerGenerate;
-  $('cancelBtn').onclick = () => { window.api.cancelGenerate(); endGenerate(); };
+  $('cancelBtn').onclick = () => {
+    window.api.cancelGenerate();
+    endGenerate();
+  };
 
   $('clearTranscript').onclick = () => {
     state.interim = { interviewer: null, interviewee: null };
@@ -536,7 +583,8 @@ function bindEvents() {
 
   $('uploadBtn').onclick = async () => {
     const res = await window.api.pickDocuments();
-    if (res.errors && res.errors.length) toast('Some files failed to parse: ' + res.errors.join('; '), true);
+    if (res.errors && res.errors.length)
+      toast('Some files failed to parse: ' + res.errors.join('; '), true);
     refreshDocs(res.docs);
   };
   $('clearDocsBtn').onclick = async () => refreshDocs(await window.api.clearDocuments());
@@ -546,7 +594,10 @@ function bindEvents() {
   $('savePaste').onclick = async () => {
     const name = $('pasteName').value.trim() || 'Pasted text';
     const text = $('pasteText').value;
-    if (!text.trim()) { toast('Content is empty', true); return; }
+    if (!text.trim()) {
+      toast('Content is empty', true);
+      return;
+    }
     const docs = await window.api.addTextDocument({ name, text });
     $('pasteName').value = '';
     $('pasteText').value = '';
@@ -574,7 +625,9 @@ function bindEvents() {
   navigator.mediaDevices.addEventListener('devicechange', listInputDevices);
 
   // 用户手动编辑问题框 → 不再视作自动识别值
-  $('questionBox').addEventListener('input', () => { state.autoQuestion = ''; });
+  $('questionBox').addEventListener('input', () => {
+    state.autoQuestion = '';
+  });
 
   // 全局热键
   window.api.onHotkeyGenerate(() => triggerGenerate());
@@ -591,7 +644,7 @@ function bindEvents() {
   window.api.onAnswerQuestion(({ reqId, question }) => {
     if (reqId !== state.reqId || !question) return;
     const box = $('questionBox');
-    box.value = question;       // 程序化赋值不会触发 input 事件
+    box.value = question; // 程序化赋值不会触发 input 事件
     state.autoQuestion = question;
   });
   window.api.onAnswerChunk(({ reqId, delta }) => {

@@ -52,7 +52,11 @@ async function generateAnswerStream({
 
   if (!res.ok || !res.body) {
     let txt = '';
-    try { txt = await res.text(); } catch (_e) { /* ignore */ }
+    try {
+      txt = await res.text();
+    } catch (_e) {
+      /* ignore */
+    }
     throw new GenError(res.status, `生成失败 (${res.status}): ${txt.slice(0, 400)}`);
   }
 

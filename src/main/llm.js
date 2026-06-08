@@ -1,7 +1,7 @@
 'use strict';
 
 // 跨 Provider 的通用层：错误类型 + 重试/兜底逻辑。
-// 具体的流式实现由各 Provider 的 generateAnswerStream 提供（gemini.js / deepseek.js）。
+// 具体的流式实现由各 Provider 的 generateAnswerStream 提供（gemini.js / openaiCompat.js）。
 
 const TRANSIENT = new Set([429, 500, 502, 503, 504]);
 

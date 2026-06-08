@@ -41,7 +41,10 @@ async function parseFile(filePath) {
  * 将长文本切块。按段落聚合到 ~maxLen 字符，块间保留 overlap 重叠。
  */
 function chunkText(text, maxLen = 900, overlap = 150) {
-  const clean = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  const clean = text
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   if (!clean) return [];
 
   const paragraphs = clean.split(/\n\n+/);
