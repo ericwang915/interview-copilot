@@ -244,6 +244,25 @@ ipcMain.handle('add-text-document', (_e, { name, text }) => {
   return store.summary();
 });
 
+// 选择并解析一个 JD 文件，返回纯文本（持久化由设置完成）
+ipcMain.handle('pick-jd', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: '选择岗位 JD 文件',
+    properties: ['openFile'],
+    filters: [
+      { name: '文档', extensions: ['txt', 'md', 'markdown', 'pdf', 'docx', 'json'] },
+      { name: '全部文件', extensions: ['*'] },
+    ],
+  });
+  if (result.canceled || !result.filePaths[0]) return null;
+  try {
+    const text = await docs.parseFile(result.filePaths[0]);
+    return { name: path.basename(result.filePaths[0]), text };
+  } catch (e) {
+    return { name: '', text: '', error: e.message };
+  }
+});
+
 // 取消正在进行的生成
 ipcMain.on('cancel-generate', () => {
   if (activeGen) {
@@ -296,6 +315,7 @@ ipcMain.on('generate-answer', async (_e, { reqId, question, transcript }) => {
     answerLanguage: currentSettings.answerLanguage || 'auto',
     maxChars: currentSettings.maxChars || 500,
     profile: currentSettings.interviewProfile || '',
+    jobDescription: currentSettings.jobDescription || '',
   });
 
   // 输出 token 上限。

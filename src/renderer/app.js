@@ -527,6 +527,7 @@ function openSettings() {
   $('setMaxChars').value = s.maxChars || 500;
   $('setHotkey').value = s.hotkey || 'Control+A';
   $('setProfile').value = s.interviewProfile || '';
+  $('setJD').value = s.jobDescription || '';
   $('settingsModal').classList.remove('hidden');
 }
 
@@ -547,6 +548,7 @@ async function saveSettings() {
     maxChars: parseInt($('setMaxChars').value, 10) || 500,
     hotkey: $('setHotkey').value.trim() || 'Control+A',
     interviewProfile: $('setProfile').value,
+    jobDescription: $('setJD').value,
   };
   state.settings = await window.api.saveSettings(partial);
   renderHotkeyHint(state.settings.hotkey);
@@ -562,6 +564,21 @@ function bindEvents() {
   $('settingsBtn').onclick = openSettings;
   $('closeSettings').onclick = () => $('settingsModal').classList.add('hidden');
   $('saveSettings').onclick = saveSettings;
+
+  // 上传 / 清空 目标岗位 JD（保存时随设置一起持久化）
+  $('uploadJD').onclick = async () => {
+    const r = await window.api.pickJD();
+    if (!r) return;
+    if (r.error) {
+      toast('Failed to parse JD: ' + r.error, true);
+      return;
+    }
+    $('setJD').value = r.text || '';
+    toast(`Loaded JD: ${r.name} (${charCount(r.text)} chars). Click Save to keep it.`);
+  };
+  $('clearJD').onclick = () => {
+    $('setJD').value = '';
+  };
 
   $('generateBtn').onclick = triggerGenerate;
   $('cancelBtn').onclick = () => {

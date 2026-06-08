@@ -40,6 +40,7 @@ Want **zero cloud**? Use **Ollama** as the answer provider (runs locally). A ful
 - 🎙️ **Dual-channel transcription** — mic = candidate, system loopback = interviewer, transcribed separately and color-coded.
 - ⌨️ **One-key answering** — press `Ctrl+A` (configurable): detects the interviewer's *current* question from the latest turns and streams an answer.
 - 🧠 **Context-aware** — answers are grounded in the last ~15 turns of dialogue + your uploaded résumé / JD / notes (Knowledge Base).
+- 🎯 **JD customization** — paste or upload a job description in Settings; it's persisted and tailors every answer to the target role.
 - 🔌 **Switchable providers** — DeepSeek, Gemini, OpenAI, or local Ollama, with automatic retry + model fallback.
 - ✍️ **Concise, outline-style** answers (default ≤ 500 chars), shown alongside the detected question so you can edit and regenerate.
 - 🖥️ **Single, clean UI** — live transcript on the left; question / answer / knowledge base on the right.

@@ -29,6 +29,8 @@ const DEFAULTS = {
   answerLanguage: 'auto',
   // 面试背景与作答风格（注入到系统提示，最高优先级）
   interviewProfile: '',
+  // 目标岗位 JD（持久化；上传或粘贴，作答时据此定制）
+  jobDescription: '',
 };
 
 function settingsPath() {

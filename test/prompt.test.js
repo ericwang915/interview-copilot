@@ -56,6 +56,19 @@ test('buildPrompt: knowledge-base context is included when provided', () => {
   assert.match(userText, /RESUME: senior engineer/);
 });
 
+test('buildPrompt: job description is injected as tailoring context', () => {
+  const { systemInstruction } = buildPrompt({
+    question: 'q',
+    transcript: '',
+    context: '',
+    answerLanguage: 'en',
+    maxChars: 500,
+    jobDescription: 'Senior Forward Deployed Engineer — must know vLLM and GCP.',
+  });
+  assert.match(systemInstruction, /目标岗位 JD/);
+  assert.match(systemInstruction, /must know vLLM and GCP/);
+});
+
 test('extraction prompt helpers', () => {
   assert.match(EXTRACTION_SYSTEM, /ONLY that question/);
   assert.match(buildExtractionUser('Interviewer: hi'), /Interviewer: hi/);

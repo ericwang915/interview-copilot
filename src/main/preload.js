@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('api', {
   removeDocument: (id) => ipcRenderer.invoke('remove-document', id),
   clearDocuments: () => ipcRenderer.invoke('clear-documents'),
   addTextDocument: (payload) => ipcRenderer.invoke('add-text-document', payload),
+  pickJD: () => ipcRenderer.invoke('pick-jd'),
 
   // 权限
   ensureMicPermission: () => ipcRenderer.invoke('ensure-mic-permission'),

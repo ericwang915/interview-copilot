@@ -2,7 +2,15 @@
 
 // 纯函数：构造作答 / 问题提取的提示词。无 Electron 依赖，便于单测。
 
-function buildPrompt({ question, transcript, context, answerLanguage, maxChars, profile }) {
+function buildPrompt({
+  question,
+  transcript,
+  context,
+  answerLanguage,
+  maxChars,
+  profile,
+  jobDescription,
+}) {
   const langRule =
     answerLanguage === 'zh'
       ? '请用中文作答。'
@@ -21,6 +29,13 @@ function buildPrompt({ question, transcript, context, answerLanguage, maxChars, 
     '5) 给到的对话是实时语音识别结果，可能有重复、串音、口误、错别字——请自行容错，判断面试官【当前最可能在问的核心问题】，只回答这个问题；',
     `6) ${langRule}`,
   ];
+  if (jobDescription && jobDescription.trim()) {
+    lines.push(
+      '',
+      '================ 目标岗位 JD（请据此定制回答：对齐岗位要求、技术栈与关键词，突出匹配点）================',
+      jobDescription.trim().slice(0, 6000),
+    );
+  }
   if (profile && profile.trim()) {
     lines.push(
       '',
