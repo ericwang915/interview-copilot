@@ -80,6 +80,28 @@ function createWindow() {
     });
   }
 
+  // 截图模式：注入一段演示对话，截取窗口写到 assets/screenshot.png 后退出（仅用于生成 README 图）。
+  if (process.env.INTERVIEW_SCREENSHOT) {
+    mainWindow.webContents.on('did-finish-load', () => {
+      // 等 init() 跑完再注入演示内容，避免被 showEmptyState 覆盖。
+      setTimeout(async () => {
+        try {
+          const fs = require('fs');
+          await mainWindow.webContents.executeJavaScript(require('./_screenshotDemo').demoJs());
+          await new Promise((r) => setTimeout(r, 350));
+          const img = await mainWindow.webContents.capturePage();
+          const out = path.join(__dirname, '..', '..', 'assets', 'screenshot.png');
+          fs.mkdirSync(path.dirname(out), { recursive: true });
+          fs.writeFileSync(out, img.toPNG());
+          console.log('[screenshot] wrote', out);
+        } catch (e) {
+          console.error('[screenshot] failed', e);
+        }
+        app.quit();
+      }, 1000);
+    });
+  }
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
