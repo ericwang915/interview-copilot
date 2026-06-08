@@ -37,6 +37,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "screenshot": "ELECTRON_RUN_AS_NODE= INTERVIEW_SCREENSHOT=1 electron .",
+    "gif": "ELECTRON_RUN_AS_NODE= INTERVIEW_GIF=1 electron .",
     "package": "electron-packager . \"Interview Copilot\" --platform=darwin --arch=x64 --app-bundle-id=com.interview.copilot --out=dist --overwrite --app-version=1.0.0 --extend-info=extend-info.plist --prune=true",
     "sign": "codesign --force --deep --sign - \"dist/Interview Copilot-darwin-x64/Interview Copilot.app\"",
     "dist": "electron-builder",

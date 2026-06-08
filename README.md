@@ -4,7 +4,14 @@
 
 A single-window Electron desktop app. It listens to a conversation, separates **you (microphone)** from the **interviewer (system audio)**, and on a hotkey detects the interviewer's current question and drafts a concise, first-person answer — using the last ~15 turns of dialogue plus any documents you upload as context.
 
+![Interview Copilot demo — speak, transcribe, press Ctrl+A, get an answer](assets/demo.gif)
+
+<details>
+<summary>Static screenshot</summary>
+
 ![Interview Copilot — live transcript on the left, detected question and generated answer on the right](assets/screenshot.png)
+
+</details>
 
 > 中文说明见下方 [中文](#中文)。
 

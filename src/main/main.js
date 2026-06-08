@@ -102,6 +102,64 @@ function createWindow() {
     });
   }
 
+  // GIF 模式：按 _gifDemo 的时间线逐帧截图，用 ffmpeg 合成 assets/demo.gif（需要 ffmpeg）。
+  if (process.env.INTERVIEW_GIF) {
+    mainWindow.webContents.on('did-finish-load', () => {
+      setTimeout(async () => {
+        const fs = require('fs');
+        const os = require('os');
+        const { spawnSync } = require('child_process');
+        try {
+          const { steps } = require('./_gifDemo');
+          const tmp = path.join(os.tmpdir(), 'ic-gif-frames');
+          fs.rmSync(tmp, { recursive: true, force: true });
+          fs.mkdirSync(tmp, { recursive: true });
+          let n = 0;
+          for (const s of steps()) {
+            await mainWindow.webContents.executeJavaScript(s.js);
+            for (let h = 0; h < (s.hold || 1); h++) {
+              await new Promise((r) => setTimeout(r, 50));
+              const img = await mainWindow.webContents.capturePage();
+              fs.writeFileSync(
+                path.join(tmp, `f_${String(n++).padStart(4, '0')}.png`),
+                img.toPNG(),
+              );
+            }
+          }
+          const out = path.join(__dirname, '..', '..', 'assets', 'demo.gif');
+          fs.mkdirSync(path.dirname(out), { recursive: true });
+          const vf =
+            'scale=900:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer';
+          const r = spawnSync(
+            'ffmpeg',
+            [
+              '-y',
+              '-framerate',
+              '9',
+              '-i',
+              path.join(tmp, 'f_%04d.png'),
+              '-vf',
+              vf,
+              '-loop',
+              '0',
+              out,
+            ],
+            { encoding: 'utf8' },
+          );
+          if (r.status === 0) console.log('[gif] wrote', out, `(${n} frames)`);
+          else
+            console.error(
+              '[gif] ffmpeg failed',
+              (r.stderr || r.error || '').toString().slice(-600),
+            );
+        } catch (e) {
+          console.error('[gif] failed', e);
+        }
+        app.quit();
+      }, 1000);
+    });
+  }
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
