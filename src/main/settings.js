@@ -23,6 +23,8 @@ const DEFAULTS = {
   maxContextChars: 60000,
   // 全局热键：按下后自动识别问题并生成答案
   hotkey: 'Control+A',
+  // 自动作答：监测到面试官问完一个问题就自动触发（无需按热键）
+  autoAnswer: false,
   // 答案字数上限
   maxChars: 500,
   // 答案语言： auto（跟随问题） / zh / en

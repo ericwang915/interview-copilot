@@ -39,6 +39,7 @@ Want **zero cloud**? Use **Ollama** as the answer provider (runs locally). A ful
 
 - 🎙️ **Dual-channel transcription** — mic = candidate, system loopback = interviewer, transcribed separately and color-coded.
 - ⌨️ **One-key answering** — press `Ctrl+A` (configurable): detects the interviewer's *current* question from the latest turns and streams an answer.
+- ⚡ **Auto-answer (optional)** — flip the toggle and it answers on its own as soon as the interviewer finishes a question, no keypress needed.
 - 🧠 **Context-aware** — answers are grounded in the last ~15 turns of dialogue + your uploaded résumé / JD / notes (a persistent Knowledge Base you can add to, update, and clear).
 - 🎯 **JD customization** — paste or upload a job description in Settings; it's persisted and tailors every answer to the target role.
 - 🔌 **Switchable providers** — DeepSeek, Gemini, OpenAI, or local Ollama, with automatic retry + model fallback.
@@ -121,7 +122,7 @@ Key design notes:
 - [ ] Local STT (Whisper) for a fully offline pipeline
 - [ ] Windows/Linux system-audio capture
 - [ ] Optional vector RAG for large knowledge bases
-- [ ] Auto-trigger on detected question end
+- [x] Auto-trigger on detected question end
 - [ ] Answer history & export, i18n UI, custom icon
 
 ## Contributing

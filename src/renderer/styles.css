@@ -452,6 +452,26 @@ select:focus {
 }
 
 /* ---------------- question / answer ---------------- */
+.q-head-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.auto-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text-soft);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.auto-toggle input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
 .kbd-hint {
   font-size: 12px;
   color: var(--muted);

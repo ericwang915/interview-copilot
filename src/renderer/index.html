@@ -125,9 +125,15 @@
         <div class="card">
           <div class="card-head">
             <div class="card-title"><span>Current Question</span></div>
-            <span class="kbd-hint"
-              >Press <span id="hotkeyHint"></span> to auto-detect &amp; answer</span
-            >
+            <div class="q-head-right">
+              <label
+                class="auto-toggle"
+                title="Answer automatically when the interviewer finishes a question"
+              >
+                <input type="checkbox" id="autoAnswer" /> Auto-answer
+              </label>
+              <span class="kbd-hint">Press <span id="hotkeyHint"></span> to answer</span>
+            </div>
           </div>
           <div class="card-body">
             <textarea

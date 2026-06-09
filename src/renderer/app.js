@@ -17,6 +17,8 @@ const state = {
   history: [], // 已敲定的对话（去重）：{ role, text }
   sessionStart: null,
   autoQuestion: '', // 上次自动识别并回填到问题框的问题（用户未改动时视作"留空"）
+  autoTimer: null, // 自动作答的去抖定时器
+  lastAutoKey: null, // 上次自动作答的问题（去重，避免重复触发）
   // 生成
   reqId: 0,
   generating: false,
@@ -226,6 +228,41 @@ function handleTranscript(role, { text, isFinal }) {
   appendFinalLine(role, text);
   pushHistory(role, text);
   state.lastFinalSpeaker = role;
+  scheduleAuto(role);
+}
+
+// ---------------- 自动作答（监测到问题就触发） ----------------
+const AUTO_DELAY_MS = 1300; // 面试官停顿这么久 ≈ 一个问题问完
+
+function scheduleAuto(role) {
+  clearTimeout(state.autoTimer);
+  if (!state.settings.autoAnswer || !state.listening) return;
+  if (role === 'interviewee') return; // 你开口了 → 取消待触发的自动作答
+  // 面试官每说完一句就重置去抖；停顿 AUTO_DELAY_MS 后判定问完
+  state.autoTimer = setTimeout(maybeAutoAnswer, AUTO_DELAY_MS);
+}
+
+function maybeAutoAnswer() {
+  if (!state.settings.autoAnswer || !state.listening || state.generating) return;
+  // 当前问题轮 = 最后一次「你」说话之后的面试官内容
+  let lastYou = -1;
+  for (let i = state.history.length - 1; i >= 0; i--) {
+    if (state.history[i].role === 'interviewee') {
+      lastYou = i;
+      break;
+    }
+  }
+  const turnText = state.history
+    .slice(lastYou + 1)
+    .filter((h) => h.role === 'interviewer')
+    .map((h) => h.text)
+    .join(' ')
+    .trim();
+  if (turnText.length < 15 || !isQuestion(turnText)) return;
+  const key = normalizeText(turnText);
+  if (key === state.lastAutoKey) return; // 本轮已自动答过
+  state.lastAutoKey = key;
+  triggerGenerate();
 }
 
 // ---------------- 音频采集 ----------------
@@ -379,6 +416,7 @@ async function startListening() {
 
     state.listening = true;
     state.sessionStart = Date.now();
+    state.lastAutoKey = null;
     clearEmptyState();
     if (!$('transcript').querySelector('.day-sep')) addDaySeparator();
     setLive(true);
@@ -403,6 +441,7 @@ function onDgState(which, s, info) {
 
 async function stopListening() {
   state.listening = false;
+  clearTimeout(state.autoTimer);
   try {
     if (state.dgMic) state.dgMic.close();
   } catch (_e) {}
@@ -646,6 +685,16 @@ function bindEvents() {
     state.autoQuestion = '';
   });
 
+  // 自动作答开关
+  $('autoAnswer').onchange = async (e) => {
+    state.settings = await window.api.saveSettings({ autoAnswer: e.target.checked });
+    toast(
+      e.target.checked
+        ? 'Auto-answer on — I’ll answer when the interviewer finishes a question'
+        : 'Auto-answer off',
+    );
+  };
+
   // 全局热键
   window.api.onHotkeyGenerate(() => triggerGenerate());
 
@@ -686,6 +735,7 @@ function bindEvents() {
 async function init() {
   state.settings = await window.api.getSettings();
   renderHotkeyHint(state.settings.hotkey || 'Control+A');
+  $('autoAnswer').checked = !!state.settings.autoAnswer;
   $('langSelect').value = state.settings.sttLanguage || 'en-US';
   showEmptyState();
   updateCounter('');
