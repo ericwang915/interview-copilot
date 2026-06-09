@@ -79,7 +79,10 @@ On first launch, open **Settings** (gear icon) and enter your Deepgram key + one
 ## Build a standalone app
 
 ```bash
-# Quick local .app (Electron Packager) — macOS
+# Build for THIS Mac's architecture (x64 or arm64), sign, and open — recommended
+make app
+
+# Or via npm (builds x64; runs under Rosetta on Apple Silicon)
 npm run package && npm run sign
 
 # Installers (electron-builder): dmg / nsis / AppImage
