@@ -1,6 +1,7 @@
 name: Release
 
 # Build installers and publish a GitHub Release when a version tag is pushed (e.g. v1.0.0).
+# electron-builder publishes the artifacts itself (one canonical set + auto-update metadata).
 on:
   push:
     tags: ['v*']
@@ -23,11 +24,11 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: Build installers
-        run: npm run dist
+      - name: Build & publish installers
+        run: npx --no-install electron-builder --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload build artifacts (per OS)
+      - name: Upload build artifacts (backup)
         uses: actions/upload-artifact@v4
         with:
           name: interview-copilot-${{ matrix.os }}
@@ -36,13 +37,3 @@ jobs:
             dist/*.exe
             dist/*.AppImage
           if-no-files-found: ignore
-      - name: Attach to GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/*.dmg
-            dist/*.exe
-            dist/*.AppImage
-          fail_on_unmatched_files: false
-          generate_release_notes: true
