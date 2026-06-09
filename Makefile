@@ -4,6 +4,7 @@
 # non-writable global ~/Library/Caches/electron.
 export electron_config_cache := $(CURDIR)/.electron-cache
 
+UNAME_S  := $(shell uname -s)
 APP_NAME := Real Time Interview Copilot
 # ARCH: x64 on Intel, arm64 on Apple Silicon
 ARCH     := $(shell uname -m | sed 's/x86_64/x64/')
@@ -21,10 +22,18 @@ PKG_ARGS := --platform=darwin --app-bundle-id=com.interview.copilot --icon=build
 .DEFAULT_GOAL := run
 .PHONY: run dev install app universal test lint format screenshot gif clean help
 
+ifeq ($(UNAME_S),Darwin)
 run: $(STAMP) ## Build the app if needed, then open it (full features incl. system audio)
 	@open "$(APP)"
 	@echo "→ Opened \"$(APP_NAME)\". First run? Enter API keys in Settings (gear), and grant"
 	@echo "  System Settings → Privacy & Security → Screen Recording for interviewer audio."
+else
+run: node_modules ## Launch the app (Linux/Windows dev launch)
+	@echo "→ Launching via Electron. First run? Enter API keys in Settings (gear)."
+	@echo "  Windows: getDisplayMedia captures system audio (loopback). Linux: pick a"
+	@echo "  PulseAudio/PipeWire 'Monitor' source under 'Interviewer audio'."
+	npm start
+endif
 
 # Rebuild only when sources change. Stamp file (no spaces) is the real target.
 $(STAMP): node_modules $(SRC)

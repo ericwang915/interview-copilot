@@ -105,13 +105,15 @@ After that it launches normally. (Building from source — `npm run package` —
 
 ## Platform support
 
-| Platform | Mic (candidate) | System audio (interviewer) |
-|---|---|---|
-| macOS 13+ | ✅ | ✅ via Screen-Capture loopback (grant Screen Recording) |
-| Windows | ✅ | ⚠️ untested — `getDisplayMedia` system audio differs; PRs welcome |
-| Linux | ✅ | ⚠️ untested; PRs welcome |
+| Platform | Run it | Mic (candidate) | System audio (interviewer) |
+|---|---|---|---|
+| macOS 13+ | `make run` (builds & opens the app) or a `.dmg` | ✅ | ✅ Screen-Capture loopback — grant Screen Recording |
+| Windows | `…Setup.exe`, or `npm install && npm start` / `make run` | ✅ | ✅ `getDisplayMedia` loopback (tick "share system audio") |
+| Linux | `.AppImage`, or `npm install && npm start` / `make run` | ✅ | ⚠️ no `getDisplayMedia` loopback — pick a PulseAudio/PipeWire **Monitor** source under **Interviewer audio** |
 
-**No-permission alternative (any OS):** install a virtual audio device ([BlackHole](https://github.com/ExistentialAudio/BlackHole) on macOS, [VB-Cable](https://vb-audio.com/Cable/) on Windows), route the meeting app's output to it, and pick it under **Interviewer audio**.
+`make run` adapts to the OS: on macOS it builds & opens the signed app (so the Screen-Recording permission attaches to the app); on Windows/Linux it launches via `npm start`. npm scripts are cross-platform (via `cross-env`).
+
+**No-permission / fallback (any OS):** install a virtual audio device ([BlackHole](https://github.com/ExistentialAudio/BlackHole) on macOS, [VB-Cable](https://vb-audio.com/Cable/) on Windows) or use a system **Monitor** source, route the meeting app's output to it, and pick it under **Interviewer audio**.
 
 ## Architecture
 
