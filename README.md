@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ericwang915/interview-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/ericwang915/interview-copilot/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey)
+![Platform](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-lightgrey)
 ![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
 [![Providers](https://img.shields.io/badge/LLM-DeepSeek%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Ollama-c15a37)](#features)
 
@@ -56,7 +56,7 @@ Want **zero cloud**? Use **Ollama** as the answer provider (runs locally). A ful
 
 ## Requirements
 
-- **macOS 13+** (Ventura or later) — current target. Windows/Linux: see [Platform support](#platform-support).
+- **macOS 13+**, **Windows**, or **Linux** — runs on all three; system-audio capture is most seamless on macOS (see [Platform support](#platform-support)).
 - **Node.js ≥ 18** (Node 20 LTS recommended; see `.nvmrc`).
 - API keys: [Deepgram](https://console.deepgram.com/) (STT, required) and at least one answer provider — [DeepSeek](https://platform.deepseek.com/) / [Gemini](https://aistudio.google.com/apikey) / [OpenAI](https://platform.openai.com/api-keys), or a local [Ollama](https://ollama.com/) install.
 
