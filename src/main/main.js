@@ -168,17 +168,21 @@ function createWindow() {
 // 允许渲染进程通过 getDisplayMedia 采集系统声音（面试官）。
 function setupDisplayMediaLoopback() {
   session.defaultSession.setDisplayMediaRequestHandler(
-    (request, callback) => {
-      desktopCapturer
-        .getSources({ types: ['screen'] })
-        .then((sources) => {
-          // macOS 13+ : audio: 'loopback' 直接抓系统声音
+    async (request, callback) => {
+      // macOS 13+ : audio: 'loopback' 直接抓系统声音（需要「屏幕录制」权限）。
+      // getSources 失败几乎都是没授予屏幕录制权限——安静地拒绝，由渲染层引导用户去授权。
+      try {
+        const sources = await desktopCapturer.getSources({ types: ['screen'] });
+        if (sources && sources.length) {
           callback({ video: sources[0], audio: 'loopback' });
-        })
-        .catch((e) => {
-          console.error('getSources 失败:', e);
+        } else {
+          console.warn('No screen sources (grant Screen Recording permission for system audio).');
           callback({});
-        });
+        }
+      } catch (_e) {
+        console.warn('System-audio capture unavailable — grant Screen Recording permission.');
+        callback({});
+      }
     },
     { useSystemPicker: false },
   );

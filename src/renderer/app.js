@@ -384,7 +384,12 @@ async function startListening() {
     let sysStream = null;
     const sysVal = $('sysSelect').value;
     try {
-      sysStream = await getSystemStream(sysVal);
+      // Loopback 需要屏幕录制权限：已明确拒绝时直接引导，不触发 getDisplayMedia（避免一串报错）。
+      if (sysVal === '__loopback__' && (await window.api.getScreenPermission()) === 'denied') {
+        await handleSystemCaptureError(new Error('Screen Recording permission denied'), sysVal);
+      } else {
+        sysStream = await getSystemStream(sysVal);
+      }
     } catch (e) {
       console.error('system audio capture failed:', e);
       await handleSystemCaptureError(e, sysVal);

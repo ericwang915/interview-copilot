@@ -5,6 +5,9 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Fixed
+- System-audio capture without Screen Recording permission now fails quietly with a clear prompt instead of throwing `Failed to get sources` / `Video was requested…` unhandled rejections. When the permission is already denied, the app skips the capture attempt and guides you to grant it (continuing mic-only).
+
 ### Changed
 - Renamed the app (display name) to **Real Time Interview Copilot**. The npm package, bundle id (`com.interview.copilot`), repo slug, and local data directory are unchanged, so existing settings/keys/JD/Knowledge Base are preserved.
 
