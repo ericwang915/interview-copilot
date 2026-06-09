@@ -58,14 +58,15 @@ Want **zero cloud**? Use **Ollama** as the answer provider (runs locally). A ful
 - **Node.js ≥ 18** (Node 20 LTS recommended; see `.nvmrc`).
 - API keys: [Deepgram](https://console.deepgram.com/) (STT, required) and at least one answer provider — [DeepSeek](https://platform.deepseek.com/) / [Gemini](https://aistudio.google.com/apikey) / [OpenAI](https://platform.openai.com/api-keys), or a local [Ollama](https://ollama.com/) install.
 
-## Quick start (dev)
+## Quick start
 
 ```bash
 git clone https://github.com/ericwang915/interview-copilot
 cd interview-copilot
-npm install
-npm start
+make run            # installs deps if needed, then launches the app
 ```
+
+No `make`? Use `npm install && npm start`. Run `make help` to see all targets (`dev`, `test`, `lint`, `package`, …).
 
 On first launch, open **Settings** (gear icon) and enter your Deepgram key + one answer provider's key. Then:
 
