@@ -1,10 +1,13 @@
 name: Release
 
-# Build installers when a version tag is pushed (e.g. v1.0.0).
+# Build installers and publish a GitHub Release when a version tag is pushed (e.g. v1.0.0).
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -23,9 +26,9 @@ jobs:
       - name: Build installers
         run: npm run dist
         env:
-          # electron-builder publishes nothing here; artifacts are uploaded below.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload build artifacts (per OS)
+        uses: actions/upload-artifact@v4
         with:
           name: interview-copilot-${{ matrix.os }}
           path: |
@@ -33,3 +36,13 @@ jobs:
             dist/*.exe
             dist/*.AppImage
           if-no-files-found: ignore
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.dmg
+            dist/*.exe
+            dist/*.AppImage
+          fail_on_unmatched_files: false
+          generate_release_notes: true

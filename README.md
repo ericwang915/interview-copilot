@@ -1,5 +1,11 @@
 # Interview Copilot
 
+[![CI](https://github.com/ericwang915/interview-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/ericwang915/interview-copilot/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey)
+![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
+[![Providers](https://img.shields.io/badge/LLM-DeepSeek%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Ollama-c15a37)](#features)
+
 > Real-time interview assistant — live dual-channel transcription (Deepgram) + LLM answers (DeepSeek / Gemini / OpenAI / Ollama), grounded in your own documents.
 
 A single-window Electron desktop app. It listens to a conversation, separates **you (microphone)** from the **interviewer (system audio)**, and on a hotkey detects the interviewer's current question and drafts a concise, first-person answer — using the last ~15 turns of dialogue plus any documents you upload as context.
@@ -79,6 +85,15 @@ npm run dist:mac      # mac (x64 + arm64)
 ```
 
 The built app lives in `dist/`. For everyday use, launch the **packaged app** (double-click), not `npm start` from a terminal — on macOS the Screen-Recording permission attaches to the launching process, so a terminal-launched dev build can't reliably capture system audio.
+
+## Installing a prebuilt release (macOS)
+
+Prebuilt installers from the [Releases](https://github.com/ericwang915/interview-copilot/releases) page are **not notarized** (this is a free, open-source project without a paid Apple Developer certificate). So the first time you open it, Gatekeeper will warn that the developer can't be verified. To open it anyway:
+
+- **Right-click the app → Open**, then click **Open** in the dialog (only needed once), **or**
+- run `xattr -dr com.apple.quarantine "/Applications/Interview Copilot.app"` in Terminal.
+
+After that it launches normally. (Building from source — `npm run package` — produces a locally-signed app with no such prompt.)
 
 ## Platform support
 
