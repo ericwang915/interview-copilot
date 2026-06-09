@@ -5,6 +5,9 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Changed
+- Renamed the app (display name) to **Real Time Interview Copilot**. The npm package, bundle id (`com.interview.copilot`), repo slug, and local data directory are unchanged, so existing settings/keys/JD/Knowledge Base are preserved.
+
 ### Added
 - **App icon**: a native-style macOS icon (rust squircle + microphone), generated from `build/icon.svg` via `npm run icon` and applied to packaged builds and the dev dock.
 - **Auto-answer mode**: an optional toggle that detects when the interviewer finishes a question (pause debounce + question heuristic) and generates the answer automatically — no hotkey needed.

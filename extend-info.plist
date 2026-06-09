@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Interview Copilot transcribes your microphone (the candidate) in real time.</string>
+  <string>Real Time Interview Copilot transcribes your microphone (the candidate) in real time.</string>
   <key>NSScreenCaptureUsageDescription</key>
-  <string>Interview Copilot captures system audio (the interviewer) via screen-capture loopback.</string>
+  <string>Real Time Interview Copilot captures system audio (the interviewer) via screen-capture loopback.</string>
 </dict>
 </plist>

@@ -56,7 +56,7 @@ function createWindow() {
     minHeight: 640,
     show: !smoke,
     backgroundColor: '#0f1117',
-    title: 'Interview Copilot',
+    title: 'Real Time Interview Copilot',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

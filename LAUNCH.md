@@ -1,6 +1,6 @@
 # Launch copy
 
-Ready-to-post drafts for sharing Interview Copilot. **You** post these from your
+Ready-to-post drafts for sharing Real Time Interview Copilot. **You** post these from your
 own accounts — they're framed honestly around interview **practice, mock
 interviews, and accessibility**, which is both the right framing and the one
 least likely to attract "this is cheating" pile-ons.
@@ -14,7 +14,7 @@ Repo: https://github.com/ericwang915/interview-copilot
 **Title**
 
 ```
-Show HN: Interview Copilot – local desktop app that transcribes and drafts interview answers
+Show HN: Real Time Interview Copilot – local desktop app that transcribes and drafts interview answers
 ```
 
 **Body**
@@ -97,7 +97,7 @@ Practice interviews with a local AI that hears and answers
 **Description**
 
 ```
-Interview Copilot is an open-source desktop app for interview practice. It
+Real Time Interview Copilot is an open-source desktop app for interview practice. It
 transcribes both sides of a mock interview in real time (Deepgram), detects the
 current question, and drafts a concise, first-person answer with the LLM of your
 choice — DeepSeek, Gemini, OpenAI, or fully local Ollama — grounded in the recent
@@ -120,7 +120,7 @@ responsible use. Happy to answer anything about the architecture!
 ## X / Twitter (thread)
 
 ```
-1/ Open-sourced Interview Copilot — a local desktop app for interview practice.
+1/ Open-sourced Real Time Interview Copilot — a local desktop app for interview practice.
 
 It hears the question (your mic + system audio, via Deepgram) and drafts your
 answer with the LLM you pick. Demo 👇  [attach demo.gif]

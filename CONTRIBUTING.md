@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving Interview Copilot!
+Thanks for your interest in improving Real Time Interview Copilot!
 
 ## Development setup
 

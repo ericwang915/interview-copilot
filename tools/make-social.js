@@ -41,7 +41,7 @@ app.whenReady().then(async () => {
   </style></head><body><div class="wrap">
     <div class="left">
       <div class="brand"><span class="ic">${icon.replace('width="1024" height="1024"', 'width="84" height="84"')}</span>
-        <h1>Interview Copilot</h1></div>
+        <h1>Real Time Interview Copilot</h1></div>
       <p class="tag">Hear the interviewer's question and draft your answer — live, and entirely on your machine.</p>
       <div class="chips"><span class="chip">Deepgram STT</span><span class="chip">DeepSeek · Gemini · OpenAI · Ollama</span><span class="chip">Local-first</span><span class="chip">MIT</span></div>
       <div class="url">github.com/ericwang915/interview-copilot</div>

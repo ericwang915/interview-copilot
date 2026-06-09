@@ -1,4 +1,4 @@
-# Interview Copilot
+# Real Time Interview Copilot
 
 [![CI](https://github.com/ericwang915/interview-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/ericwang915/interview-copilot/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -12,12 +12,12 @@
 
 A single-window Electron desktop app. It listens to a conversation, separates **you (microphone)** from the **interviewer (system audio)**, and on a hotkey detects the interviewer's current question and drafts a concise, first-person answer — using the last ~15 turns of dialogue plus any documents you upload as context.
 
-![Interview Copilot demo — speak, transcribe, press Ctrl+A, get an answer](assets/demo.gif)
+![Real Time Interview Copilot demo — speak, transcribe, press Ctrl+A, get an answer](assets/demo.gif)
 
 <details>
 <summary>Static screenshot</summary>
 
-![Interview Copilot — live transcript on the left, detected question and generated answer on the right](assets/screenshot.png)
+![Real Time Interview Copilot — live transcript on the left, detected question and generated answer on the right](assets/screenshot.png)
 
 </details>
 
@@ -94,7 +94,7 @@ The built app lives in `dist/`. For everyday use, launch the **packaged app** (d
 Prebuilt installers from the [Releases](https://github.com/ericwang915/interview-copilot/releases) page are **not notarized** (this is a free, open-source project without a paid Apple Developer certificate). So the first time you open it, Gatekeeper will warn that the developer can't be verified. To open it anyway:
 
 - **Right-click the app → Open**, then click **Open** in the dialog (only needed once), **or**
-- run `xattr -dr com.apple.quarantine "/Applications/Interview Copilot.app"` in Terminal.
+- run `xattr -dr com.apple.quarantine "/Applications/Real Time Interview Copilot.app"` in Terminal.
 
 After that it launches normally. (Building from source — `npm run package` — produces a locally-signed app with no such prompt.)
 
@@ -147,7 +147,7 @@ Key design notes:
 
 PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md). Sharing it? There's ready-to-post copy in [LAUNCH.md](LAUNCH.md).
 
-If Interview Copilot is useful to you, please **⭐ star the repo** — it genuinely helps others find it.
+If Real Time Interview Copilot is useful to you, please **⭐ star the repo** — it genuinely helps others find it.
 
 ## Star History
 
