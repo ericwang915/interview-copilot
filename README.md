@@ -82,13 +82,15 @@ On first launch, open **Settings** (gear icon) and enter your Deepgram key + one
 # Build for THIS Mac's architecture (x64 or arm64), sign, and open — recommended
 make app
 
-# Or via npm (builds x64; runs under Rosetta on Apple Silicon)
-npm run package && npm run sign
+# One .app that runs natively on both Intel and Apple Silicon
+make universal
 
 # Installers (electron-builder): dmg / nsis / AppImage
 npm run dist          # current platform
-npm run dist:mac      # mac (x64 + arm64)
+npm run dist:mac      # mac — builds both x64 and arm64 dmgs
 ```
+
+Prebuilt [Releases](https://github.com/ericwang915/interview-copilot/releases) ship **both** an Apple-Silicon (`-arm64.dmg`) and an Intel (`.dmg`) build — download the one matching your Mac.
 
 The built app lives in `dist/`. For everyday use, launch the **packaged app** (double-click), not `npm start` from a terminal — on macOS the Screen-Recording permission attaches to the launching process, so a terminal-launched dev build can't reliably capture system audio.
 

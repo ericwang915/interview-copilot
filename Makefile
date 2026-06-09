@@ -11,7 +11,10 @@ ARCH := $(shell uname -m | sed 's/x86_64/x64/')
 APP_DIR := dist/$(APP_NAME)-darwin-$(ARCH)
 
 .DEFAULT_GOAL := run
-.PHONY: run dev install test lint format package app screenshot gif clean help
+.PHONY: run dev install test lint format package app universal screenshot gif clean help
+
+PKG_ARGS := --platform=darwin --app-bundle-id=com.interview.copilot --icon=build/icon.icns \
+	--out=dist --overwrite --extend-info=extend-info.plist --prune=true
 
 run: node_modules ## Install deps if needed, then launch the app
 	npm start
@@ -38,11 +41,14 @@ package: node_modules ## Build & ad-hoc sign a local macOS .app
 	npm run package && npm run sign
 
 app: node_modules ## Build (this machine's arch), sign & open the native .app
-	npx --no-install electron-packager . "$(APP_NAME)" --platform=darwin --arch=$(ARCH) \
-		--app-bundle-id=com.interview.copilot --icon=build/icon.icns --out=dist --overwrite \
-		--app-version=1.0.0 --extend-info=extend-info.plist --prune=true
+	npx --no-install electron-packager . "$(APP_NAME)" --arch=$(ARCH) $(PKG_ARGS)
 	codesign --force --deep --sign - "$(APP_DIR)/$(APP_NAME).app"
 	open "$(APP_DIR)/$(APP_NAME).app"
+
+universal: node_modules ## Build a universal (x64+arm64) .app, sign & open
+	npx --no-install electron-packager . "$(APP_NAME)" --arch=universal $(PKG_ARGS)
+	codesign --force --deep --sign - "dist/$(APP_NAME)-darwin-universal/$(APP_NAME).app"
+	open "dist/$(APP_NAME)-darwin-universal/$(APP_NAME).app"
 
 screenshot: node_modules ## Regenerate README screenshot
 	npm run screenshot
