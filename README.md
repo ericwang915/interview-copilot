@@ -6,6 +6,8 @@
 ![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
 [![Providers](https://img.shields.io/badge/LLM-DeepSeek%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Ollama-c15a37)](#features)
 
+**Hear the interviewer's question and draft your answer — live, and entirely on your machine.** Built for interview practice, mock interviews, and self-review.
+
 > Real-time interview assistant — live dual-channel transcription (Deepgram) + LLM answers (DeepSeek / Gemini / OpenAI / Ollama), grounded in your own documents.
 
 A single-window Electron desktop app. It listens to a conversation, separates **you (microphone)** from the **interviewer (system audio)**, and on a hotkey detects the interviewer's current question and drafts a concise, first-person answer — using the last ~15 turns of dialogue plus any documents you upload as context.
@@ -143,7 +145,13 @@ Key design notes:
 
 ## Contributing
 
-PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md).
+PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md). Sharing it? There's ready-to-post copy in [LAUNCH.md](LAUNCH.md).
+
+If Interview Copilot is useful to you, please **⭐ star the repo** — it genuinely helps others find it.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ericwang915/interview-copilot&type=Date)](https://star-history.com/#ericwang915/interview-copilot&Date)
 
 ## License
 

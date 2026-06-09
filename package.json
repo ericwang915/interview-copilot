@@ -40,6 +40,7 @@
     "screenshot": "ELECTRON_RUN_AS_NODE= INTERVIEW_SCREENSHOT=1 electron .",
     "gif": "ELECTRON_RUN_AS_NODE= INTERVIEW_GIF=1 electron .",
     "icon": "ELECTRON_RUN_AS_NODE= electron tools/make-icon.js",
+    "social": "ELECTRON_RUN_AS_NODE= electron tools/make-social.js",
     "package": "electron-packager . \"Interview Copilot\" --platform=darwin --arch=x64 --app-bundle-id=com.interview.copilot --icon=build/icon.icns --out=dist --overwrite --app-version=1.0.0 --extend-info=extend-info.plist --prune=true",
     "sign": "codesign --force --deep --sign - \"dist/Interview Copilot-darwin-x64/Interview Copilot.app\"",
     "dist": "electron-builder",
