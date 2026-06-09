@@ -407,6 +407,15 @@ ipcMain.handle('ensure-mic-permission', async () => {
 // ---------- app lifecycle ----------
 
 app.whenReady().then(() => {
+  // dev 运行(npm start)时也给 dock 上我们的图标；打包后用 bundle 自带的 icns。
+  if (process.platform === 'darwin' && app.dock) {
+    try {
+      const devIcon = path.join(__dirname, '..', '..', 'build', 'icon.png');
+      if (require('fs').existsSync(devIcon)) app.dock.setIcon(devIcon);
+    } catch (_e) {
+      /* ignore */
+    }
+  }
   setupDisplayMediaLoopback();
   createWindow();
   registerHotkey();

@@ -139,7 +139,7 @@ Key design notes:
 - [ ] Windows/Linux system-audio capture
 - [ ] Optional vector RAG for large knowledge bases
 - [x] Auto-trigger on detected question end
-- [ ] Answer history & export, i18n UI, custom icon
+- [ ] Answer history & export, i18n UI
 
 ## Contributing
 
