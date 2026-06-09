@@ -27,6 +27,17 @@ test('store: add / summary / buildContext / remove / clear', () => {
   assert.equal(store.buildContext(60000), '');
 });
 
+test('store: update changes a doc in place', () => {
+  store.clear();
+  store.add('a.txt', 'old');
+  const id = store.summary()[0].id;
+  const after = store.update(id, { name: 'b.txt', text: 'new longer text' });
+  assert.equal(after[0].name, 'b.txt');
+  assert.equal(after[0].chars, 'new longer text'.length);
+  assert.match(store.buildContext(60000), /new longer text/);
+  store.clear();
+});
+
 test('store: buildContext truncates when over the limit', () => {
   store.clear();
   store.add('big.txt', 'x'.repeat(1000));
